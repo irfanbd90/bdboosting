@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced E-commerce Website</title>
+    <style>
+        /* Reset and basic styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #f0f4f8, #d6e9ff);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Menubar Styling */
+        .menubar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+
+        /* Mobile Menu Styling */
+        @media (max-width: 768px) {
+            .menubar {
+                top: auto;
+                bottom: 0;
+                position: sticky;
+                background: rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        .menubar button {
+            background: none;
+            border: none;
+            color: rgba(0,0,0,0.7);
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease, transform 0.2s;
+        }
+        .menubar button:hover {
+            color: #ff6347;
+            transform: scale(1.1);
+        }
+
+        /* Main Container */
+        .container {
+            margin-top: 80px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            animation: fadeIn 1s ease;
+        }
+
+        /* Section Styling */
+        .section {
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-in-out;
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+
+        /* Product Card Styling */
+        .product-card {
+            background: linear-gradient(135deg, #ffcc99, #ff9999);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin: 10px 0;
+        }
+        .product-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Button Styling */
+        .btn {
+            background-color: #007bff;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease, transform 0.2s;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        /* Input Fields */
+        input[type="text"], input[type="number"] {
+            padding: 15px;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+            margin: 10px 0;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #0056b3;
+            outline: none;
+        }
+
+        /* Profile and Deposit Input Fields */
+        .profile-info, .deposit-form, .purchase-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Purchase Form */
+        .purchase-form {
+            display: none; /* Hidden by default */
+            margin-top: 20px;
+        }
+        .purchase-form label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        /* Balance Popup */
+        .balance-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
+            text-align: center;
+            font-size: 1.2rem;
+            z-index: 2000;
+        }
+        .emoji-loader {
+            font-size: 2rem;
+            animation: bounce 1s infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Low Balance Notification */
+        .low-balance-notification {
+            display: none;
+            padding: 10px;
+            background: #ffcccc;
+            color: #d9534f;
+            border: 1px solid #d9534f;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            animation: drop 1s forwards;
+        }
+
+        @keyframes drop {
+            0% { transform: translateY(-20px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Deposit Code Notification */
+        .deposit-code-notification {
+            display: none;
+            padding: 10px;
+            background: #ccffcc;
+            color: #3c763d;
+            border: 1px solid #3c763d;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            animation: drop 1s forwards;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Menubar -->
+    <div class="menubar">
+        <button onclick="showSection('home')">Home</button>
+        <button onclick="showSection('profile')">Profile</button>
+        <button onclick="showSection('balance')">Balance</button>
+        <button onclick="showSection('deposit')">Deposit</button>
+    </div>
+
+    <!-- Balance Popup -->
+    <div id="balancePopup" class="balance-popup">
+        <div class="emoji-loader">💸</div>
+        <p>Your balance: <span id="balanceDisplay">0</span> Taka</p>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Home Section with Product -->
+        <div id="home" class="section active">
+            <h2>Product Listings</h2>
+            <div class="product-card">
+                <h3>YOUTUBE CHANNEL TOTAL PACKAGE</h3>
+                <p>Price: 1200 Taka</p>
+                <button class="btn" id="buyNowBtn" onclick="buyProduct()">Buy Now</button>
+                <div id="lowBalanceMsg" class="low-balance-notification">
+                    Low balance! Please deposit funds. 💰
+                </div>
+            </div>
+
+            <!-- Purchase Form -->
+            <div id="purchaseForm" class="purchase-form">
+                <h3>Complete Your Purchase</h3>
+                <label>YouTube Channel Name:</label>
+                <input type="text" id="channelName" placeholder="Enter your channel name">
+                <label>YouTube Channel Link:</label>
+                <input type="text" id="channelLink" placeholder="Enter your channel link">
+                <label>Your Name:</label>
+                <input type="text" id="buyerName" placeholder="Enter your name">
+                <label>Your Phone Number:</label>
+                <input type="text" id="buyerPhone" placeholder="Enter your phone number">
+                <button class="btn" onclick="confirmPurchase()">Confirm Purchase</button>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profile" class="section">
+            <h2>Your Profile</h2>
+            <div class="profile-info">
+                <p>Name: <span id="profileName">Your Name</span></p>
+                <p>Phone: <span id="profilePhone">Your Phone</span></p>
+            </div>
+            <div class="profile-update">
+                <input type="text" id="updateName" placeholder="Enter new name">
+                <input type="text" id="updatePhone" placeholder="Enter new phone number">
+                <button class="btn" onclick="updateProfile()">Update Profile</button>
+            </div>
+        </div>
+
+        <!-- Balance Section -->
+        <div id="balance" class="section">
+            <h2>Your Balance</h2>
+            <p id="balanceDisplay">0 Taka</p>
+        </div>
+
+        <!-- Deposit Section -->
+        <div id="deposit" class="section">
+            <h2>Deposit Funds</h2>
+            <input type="number" id="depositAmount" placeholder="Amount to deposit">
+            <input type="text" id="depositCode" placeholder="Enter the deposit code">
+            <button class="btn" onclick="depositFunds()">Deposit</button>
+            <div id="depositCodeMsg" class="deposit-code-notification">
+                Please enter the correct code.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let balance = 0;
+        const depositCode = "QUASEMI102@1T@";
+
+        // Show specific section
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // Function to buy a product
+        function buyProduct() {
+            if (balance >= 1200) {
+                document.getElementById('lowBalanceMsg').style.display = 'none';
+                document.getElementById('purchaseForm').style.display = 'block';
+            } else {
+                document.getElementById('lowBalanceMsg').style.display = 'block';
+            }
+        }
+
+        // Confirm purchase and show balance
+        function confirmPurchase() {
+            balance -= 1200; // Deducting the price
+            updateBalanceDisplay(); // Update the balance display
+            showBalancePopup();
+            document.getElementById('purchaseForm').style.display = 'none';
+        }
+
+        // Deposit funds
+        function depositFunds() {
+            const amount = parseInt(document.getElementById('depositAmount').value);
+            const code = document.getElementById('depositCode').value;
+
+            if (code === depositCode) {
+                balance += amount;
+                updateBalanceDisplay(); // Update the balance display
+                document.getElementById('depositCodeMsg').style.display = 'none';
+                showBalancePopup();
+            } else {
+                document.getElementById('depositCodeMsg').style.display = 'block';
+            }
+        }
+
+        // Show balance popup
+        function showBalancePopup() {
+            const popup = document.getElementById('balancePopup');
+            popup.style.display = 'block';
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 3000); // Hide after 3 seconds
+        }
+
+        // Update the balance display in multiple sections
+        function updateBalanceDisplay() {
+            const balanceDisplayElements = document.querySelectorAll('#balanceDisplay');
+            balanceDisplayElements.forEach(element => {
+                element.innerText = balance + ' Taka'; // Updated to include currency
+            });
+        }
+
+        // Update profile information
+        function updateProfile() {
+            const newName = document.getElementById('updateName').value;
+            const newPhone = document.getElementById('updatePhone').value;
+
+            if (newName) {
+                document.getElementById('profileName').innerText = newName;
+            }
+            if (newPhone) {
+                document.getElementById('profilePhone').innerText = newPhone;
+            }
+
+            // Clear the input fields
+            document.getElementById('updateName').value = '';
+            document.getElementById('updatePhone').value = '';
+        }
+    </script>
+</body>
+</html>
